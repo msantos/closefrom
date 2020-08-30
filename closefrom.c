@@ -8,14 +8,21 @@
 
 #define CLOSEFROM_VERSION "0.2.0"
 
-extern char *__progname;
-
+#if defined(__OpenBSD__)
+#else
 static int closefrom(int lowfd);
+#endif
+
 static void usage(void);
+
+extern char *__progname;
 
 int main(int argc, char *argv[]) {
   int lowfd;
   char *endptr;
+#if defined(__OpenBSD__)
+  int rv;
+#endif
 
   /* 0: progname
    * 1: lowfd
@@ -34,14 +41,24 @@ int main(int argc, char *argv[]) {
   if (endptr == argv[1] || *endptr != '\0' || lowfd < 0)
     usage();
 
+#if defined(__OpenBSD__)
+  while (((rv = closefrom(lowfd)) < 0) && errno == EINTR)
+    ;
+  /* documented errors are EINTR and EBADF */
+  if (rv < 0 && errno != EBADF)
+    err(111, "closefrom");
+#else
   if (closefrom(lowfd) < 0)
     err(111, "closefrom");
+#endif
 
   (void)execvp(argv[2], argv + 2);
 
   err(111, "execvp");
 }
 
+#if defined(__OpenBSD__)
+#else
 static int closefrom(int lowfd) {
   struct rlimit rl = {0};
   int fd;
@@ -59,6 +76,7 @@ static int closefrom(int lowfd) {
 
   return 0;
 }
+#endif
 
 static void usage(void) {
   (void)fprintf(stderr,
