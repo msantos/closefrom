@@ -8,7 +8,7 @@
 
 #define CLOSEFROM_VERSION "0.2.0"
 
-#if defined(__OpenBSD__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
 #else
 static int closefrom(int lowfd);
 #endif
@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
   /* documented errors are EINTR and EBADF */
   if (rv < 0 && errno != EBADF)
     err(111, "closefrom");
+#elif defined(__FreeBSD__)
+  closefrom(lowfd);
 #else
   if (closefrom(lowfd) < 0)
     err(111, "closefrom");
@@ -57,7 +59,7 @@ int main(int argc, char *argv[]) {
   err(111, "execvp");
 }
 
-#if defined(__OpenBSD__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
 #else
 static int closefrom(int lowfd) {
   struct rlimit rl = {0};
