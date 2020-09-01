@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean test
 
 PROG=   closefrom
 SRCS=   closefrom.c
@@ -20,3 +20,6 @@ all:
 
 clean:
 	-@rm $(PROG)
+
+test: $(PROG)
+	@PATH=.:$(PATH) bats test
