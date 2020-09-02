@@ -1,6 +1,6 @@
 # SYNOPSIS
 
-closefrom *lowfd* *cmd* *arg* *...*
+closefrom *fd* *cmd* *arg* *...*
 
 # DESCRIPTION
 
@@ -9,7 +9,7 @@ closefrom - close(2) a range of file descriptors before exec(2)
 `closefrom` closes all file descriptors numbered fd and higher before
 executing a program.
 
-`exec(2)`'ing a file can unintentionally leak file descriptors to
+`exec(2)`ing a file can unintentionally leak file descriptors to
 the new process image. These file descriptors may provide unexpected
 [capabilities](https://www.freebsd.org/cgi/man.cgi?capsicum(4)) to
 the process.
@@ -22,15 +22,15 @@ call, before executing the target process.
 
 * [ucspi-unix](https://github.com/bruceg/ucspi-unix)
 
-  `ucspi-unix` [leaks the listening
-  socket](https://github.com/bruceg/ucspi-unix/pull/2) to the application
-  subprocess. The application subprocess can race the server in accepting
-  new connections.
-
-  The `ucspi-unix unixserver` process may run as a privileged
-  user. This configuration is given as an example of "Defer to
-  Kernel", a form of privilege separation, in [Secure Design
+  `ucspi-unix` is used an example of the
+  "Defer to Kernel" pattern in [Secure Design
   Patterns](https://resources.sei.cmu.edu/asset_files/TechnicalReport/2009_005_001_15110.pdf).
+
+  The guarantees, though, are broken because `ucspi-unix` [leaks the
+  listening socket](https://github.com/bruceg/ucspi-unix/pull/2) to the
+  application subprocess. The application subprocess can race the server
+  in accepting new connections and bypass unix socket permissions and
+  socket credential checks.
 
 ~~~ C
 #include <stdio.h>
@@ -72,7 +72,7 @@ $ sudo nc -U /tmp/test.sock
 12345678
 
 # with closefrom
-sudo unixserver -m 077 /tmp/test.sock -- closefrom 2 setuidgid nobody ./accept
+sudo unixserver -m 077 /tmp/test.sock -- closefrom 3 setuidgid nobody ./accept
 accept: accept: Bad file descriptor
 ~~~
 

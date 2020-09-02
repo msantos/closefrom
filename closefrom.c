@@ -83,7 +83,7 @@ static int closefrom(int lowfd) {
 static void usage(void) {
   (void)fprintf(stderr,
                 "%s %s\n"
-                "usage: %s <lowfd> <cmd> <...>\n",
+                "usage: %s <fd> <cmd> <...>\n",
                 __progname, CLOSEFROM_VERSION, __progname);
   exit(1);
 }
