@@ -14,9 +14,7 @@ CFLAGS += $(CLOSEFROM_CFLAGS)
 LDFLAGS += $(CLOSEFROM_LDFLAGS)
 
 all:
-	$(CC) $(CFLAGS) \
-	 	-DRESTRICT_PROCESS=\"seccomp\" -DRESTRICT_PROCESS_seccomp \
-	 	-o $(PROG) $(SRCS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(PROG) $(SRCS) $(LDFLAGS)
 
 clean:
 	-@rm $(PROG)
