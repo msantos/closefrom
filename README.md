@@ -20,7 +20,7 @@ call, before executing the target process.
 
 # EXAMPLES
 
-* [ucspi-unix](https://github.com/bruceg/ucspi-unix)
+## [ucspi-unix](https://github.com/bruceg/ucspi-unix)
 
   `ucspi-unix` is an example of the "Defer to Kernel"
   privilege separation model in [Secure Design
@@ -76,9 +76,11 @@ sudo unixserver -m 077 /tmp/test.sock -- closefrom 3 setuidgid nobody ./accept
 accept: accept: Bad file descriptor
 ~~~
 
-* LXC
+## LXC
 
-* This example opens and leaks a file descriptor to `cat(1)`:
+## shell
+
+This example opens and leaks a file descriptor to `cat(1)`:
 
 ~~~ shell
 #!/bin/bash
@@ -115,6 +117,9 @@ None.
 # BUILDING
 
     make
+
+    # statically linked executable
+    ./musl-make
 
 # NOTES
 
