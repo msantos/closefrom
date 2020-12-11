@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 
   (void)execvp(argv[2], argv + 2);
 
-  err(111, "execvp");
+  err(127, "%s", argv[2]);
 }
 
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
