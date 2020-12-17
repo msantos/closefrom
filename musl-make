@@ -6,4 +6,4 @@ set -o pipefail
 
 export CC="musl-gcc -static -Os"
 export CLOSEFROM_CFLAGS="-no-pie"
-make $@
+exec make $@
