@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Michael Santos <michael.santos@gmail.com>
+ * Copyright (c) 2020-2021, Michael Santos <michael.santos@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdnoreturn.h>
 #include <sys/resource.h>
 #include <unistd.h>
 
@@ -28,7 +29,7 @@
 static int closefrom(int lowfd);
 #endif
 
-static void usage(void);
+static noreturn void usage(void);
 
 extern char *__progname;
 
@@ -95,7 +96,7 @@ static int closefrom(int lowfd) {
 }
 #endif
 
-static void usage(void) {
+static noreturn void usage(void) {
   (void)fprintf(stderr,
                 "%s %s\n"
                 "usage: %s <fd> <cmd> <...>\n",

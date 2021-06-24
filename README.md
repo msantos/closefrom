@@ -173,4 +173,4 @@ exec $@
 
 # SEE ALSO
 
-_close_(2), _closefrom(2)_, _exec(2)_
+_close_(2), _closefrom(2)_, _exec(3)_
