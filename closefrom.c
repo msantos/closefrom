@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021, Michael Santos <michael.santos@gmail.com>
+ * Copyright (c) 2020-2022, Michael Santos <michael.santos@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -22,16 +22,20 @@
 #include <sys/resource.h>
 #include <unistd.h>
 
-#define CLOSEFROM_VERSION "0.2.0"
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
+#include <dirent.h>
+#include <sys/types.h>
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
-#else
+static int isnum(const char *);
 static int closefrom(int lowfd);
+static int closefrom_all(int lowfd);
 #endif
 
 static noreturn void usage(void);
 
 extern char *__progname;
+
+#define CLOSEFROM_VERSION "0.3.0"
 
 int main(int argc, char *argv[]) {
   int lowfd;
@@ -75,9 +79,54 @@ int main(int argc, char *argv[]) {
   err(127, "%s", argv[2]);
 }
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__)
-#else
+#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
 static int closefrom(int lowfd) {
+  DIR *dp;
+  int dfd;
+  struct dirent *de;
+  int fd;
+
+  /* The opendir() function sets the close-on-exec flag for the file
+   * descriptor underlying the DIR *. */
+  dp = opendir("/dev/fd");
+  if (dp == NULL) {
+    return closefrom_all(lowfd);
+  }
+
+  dfd = dirfd(dp);
+  if (dfd == -1) {
+    (void)closedir(dp);
+    return closefrom_all(lowfd);
+  }
+
+  while ((de = readdir(dp)) != NULL) {
+    if (!isnum(de->d_name))
+      continue;
+
+    fd = atoi(de->d_name);
+
+    if (fd < lowfd || fd == dfd)
+      continue;
+
+    if (close(fd) == -1)
+      return -1;
+  }
+
+  return 0;
+}
+
+static int isnum(const char *s) {
+  const char *p;
+
+  for (p = s; *p != '\0'; p++) {
+    if (*p < '0' || *p > '9')
+      return 0;
+  }
+
+  return 1;
+}
+
+static int closefrom_all(int lowfd) {
   struct rlimit rl = {0};
   int fd;
 
@@ -85,10 +134,10 @@ static int closefrom(int lowfd) {
     return -1;
 
   for (fd = rl.rlim_cur; fd >= lowfd; fd--) {
-    if (fcntl(fd, F_GETFD, 0) < 0)
+    if (fcntl(fd, F_GETFD, 0) == -1)
       continue;
 
-    if (close(fd) < 0)
+    if (close(fd) == -1)
       return -1;
   }
 
