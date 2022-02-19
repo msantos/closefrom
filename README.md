@@ -121,34 +121,6 @@ None.
     # statically linked executable
     ./musl-make
 
-# NOTES
-
-`getrlimit(2)` is used to retrieve the maximum file descriptor for the
-process. A process can open a file descriptor and reduce `RLIMIT_NOFILE`
-to prevent the fd being closed:
-
-```
-$ ./musl-make clean all
-$ ldd closefrom
-    not a dynamic executable
-$ ldd /bin/busybox
-    not a dynamic executable
-
-$ exec 111</dev/null
-
-$ busybox sh -c "ls /proc/self/fd"
-0  1  111  2  3
-
-$ ./closefrom 3 busybox sh -c "ls /proc/self/fd"
-0  1  2  3
-
-$ softlimit -o 0 ./closefrom 3 busybox sh -c "ls /proc/self/fd"
-ls: can't open '/proc/self/fd': Too many open files
-
-$ softlimit -o 0 ./closefrom 3 busybox sh -c "ulimit -n 1024; ls /proc/self/fd"
-0    1    111  2    3
-```
-
 # ALTERNATIVES
 
 * bash
