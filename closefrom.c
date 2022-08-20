@@ -22,7 +22,11 @@
 #include <sys/resource.h>
 #include <unistd.h>
 
-#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
+#if defined(__FreeBSD__) || defined(__OpenBSD__)
+#define HAVE_CLOSEFROM
+#endif
+
+#if !defined(HAVE_CLOSEFROM)
 #include <dirent.h>
 #include <sys/types.h>
 
@@ -35,7 +39,7 @@ static noreturn void usage(void);
 
 extern char *__progname;
 
-#define CLOSEFROM_VERSION "0.3.0"
+#define CLOSEFROM_VERSION "1.0.0"
 
 int main(int argc, char *argv[]) {
   int lowfd;
@@ -67,7 +71,7 @@ int main(int argc, char *argv[]) {
   /* documented errors are EINTR and EBADF */
   if (rv < 0 && errno != EBADF)
     err(111, "closefrom");
-#elif defined(__FreeBSD__)
+#elif defined(HAVE_CLOSEFROM)
   closefrom(lowfd);
 #else
   if (closefrom(lowfd) < 0)
@@ -79,7 +83,7 @@ int main(int argc, char *argv[]) {
   err(127, "%s", argv[2]);
 }
 
-#if !defined(__FreeBSD__) && !defined(__OpenBSD__)
+#if !defined(HAVE_CLOSEFROM)
 static int closefrom(int lowfd) {
   DIR *dp;
   int dfd;

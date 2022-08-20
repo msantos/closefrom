@@ -121,6 +121,12 @@ None.
     # statically linked executable
     ./musl-make
 
+    # some versions of glibc support closefrom(2)
+    CLOSEFROM_CFLAGS="-DHAVE_CLOSEFROM" make
+
+    # run tests
+    make clean all test
+
 # ALTERNATIVES
 
 * bash
