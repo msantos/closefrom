@@ -76,8 +76,6 @@ sudo unixserver -m 077 /tmp/test.sock -- closefrom 3 setuidgid nobody ./accept
 accept: accept: Bad file descriptor
 ~~~
 
-## LXC
-
 ## shell
 
 This example opens and leaks a file descriptor to `cat(1)`:
@@ -138,13 +136,16 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-NOFILE="$(ulimit -n)"
+shopt -s failglob
+
 LOWFD="$1"
 shift
-for fd in $(seq "$LOWFD" "$NOFILE"); do
-  eval "exec $fd>&-"
+for pathfd in /dev/fd/[0-9]*; do
+	fd="${pathfd##*/}"
+	[ "$fd" -ge "$LOWFD" ] || continue
+	eval "exec $fd>&-"
 done
-exec $@
+exec "$@"
 ~~~
 
 * [fdclose](http://skarnet.org./software/execline/fdclose.html)
