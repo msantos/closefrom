@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022, Michael Santos <michael.santos@gmail.com>
+ * Copyright (c) 2020-2023, Michael Santos <michael.santos@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -39,7 +39,7 @@ static noreturn void usage(void);
 
 extern char *__progname;
 
-#define CLOSEFROM_VERSION "1.0.0"
+#define CLOSEFROM_VERSION "1.0.1"
 
 int main(int argc, char *argv[]) {
   int lowfd;
@@ -154,5 +154,5 @@ static noreturn void usage(void) {
                 "%s %s\n"
                 "usage: %s <fd> <cmd> <...>\n",
                 __progname, CLOSEFROM_VERSION, __progname);
-  exit(1);
+  exit(2);
 }
