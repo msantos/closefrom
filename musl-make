@@ -5,5 +5,5 @@ set -o nounset
 set -o pipefail
 
 export CC="musl-gcc -static -Os"
-export CLOSEFROM_CFLAGS="-no-pie $CLOSEFROM_CFLAGS"
+export CLOSEFROM_CFLAGS="-no-pie ${CLOSEFROM_CFLAGS-}"
 exec make $@
