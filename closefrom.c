@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2020-2023, Michael Santos <michael.santos@gmail.com>
+/* Copyright (c) 2020-2023, Michael Santos <michael.santos@gmail.com>
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -39,7 +38,7 @@ static noreturn void usage(void);
 
 extern char *__progname;
 
-#define CLOSEFROM_VERSION "1.0.1"
+#define CLOSEFROM_VERSION "1.0.2"
 
 int main(int argc, char *argv[]) {
   int lowfd;
@@ -68,7 +67,7 @@ int main(int argc, char *argv[]) {
 #if defined(__OpenBSD__)
   while (((rv = closefrom(lowfd)) < 0) && errno == EINTR)
     ;
-  /* documented errors are EINTR and EBADF */
+  /* documented errors are EINTR and EBADF (lowfd > highest open fd) */
   if (rv < 0 && errno != EBADF)
     err(111, "closefrom");
 #elif defined(HAVE_CLOSEFROM)
@@ -80,7 +79,7 @@ int main(int argc, char *argv[]) {
 
   (void)execvp(argv[2], argv + 2);
 
-  err(127, "%s", argv[2]);
+  err(errno == ENOENT ? 127 : 126, "%s", argv[2]);
 }
 
 #if !defined(HAVE_CLOSEFROM)
