@@ -22,17 +22,17 @@ call, before executing the target process.
 
 ## [ucspi-unix](https://github.com/bruceg/ucspi-unix)
 
-  `ucspi-unix` is an example of the "Defer to Kernel"
-  privilege separation model in [Secure Design
-  Patterns](https://resources.sei.cmu.edu/asset_files/TechnicalReport/2009_005_001_15110.pdf).
+`ucspi-unix` is an example of the "Defer to Kernel"
+privilege separation model in [Secure Design
+Patterns](https://resources.sei.cmu.edu/asset_files/TechnicalReport/2009_005_001_15110.pdf).
 
-  The guarantees are broken because `ucspi-unix` [leaks the listening
-  socket](https://github.com/bruceg/ucspi-unix/pull/2) to the application
-  subprocess. The application subprocess can race the server in accepting
-  new connections and bypass unix socket permissions and socket credential
-  checks.
+The guarantees are broken because `ucspi-unix` [leaks the listening
+socket](https://github.com/bruceg/ucspi-unix/pull/2) to the application
+subprocess. The application subprocess can race the server in accepting
+new connections and bypass unix socket permissions and socket credential
+checks.
 
-~~~ C
+```C
 #include <stdio.h>
 #include <unistd.h>
 
@@ -59,9 +59,9 @@ int main(int argc, char *argv[]) {
     (void)close(fd);
   }
 }
-~~~
+```
 
-~~~
+```
 # run unixserver as root
 sudo unixserver -m 077 /tmp/test.sock -- setuidgid nobody ./accept
 
@@ -74,20 +74,20 @@ $ sudo nc -U /tmp/test.sock
 # with closefrom
 sudo unixserver -m 077 /tmp/test.sock -- closefrom 3 setuidgid nobody ./accept
 accept: accept: Bad file descriptor
-~~~
+```
 
 ## shell
 
 This example opens and leaks a file descriptor to `cat(1)`:
 
-~~~ shell
+```shell
 #!/bin/bash
 
 exec 9</dev/null
 exec $@
-~~~
+```
 
-~~~
+```
 $ leakfd ls -al /proc/self/fd
 total 0
 dr-x------. 2 msantos msantos  0 Aug 28 09:28 .
@@ -106,7 +106,7 @@ lrwx------. 1 msantos msantos 64 Aug 28 09:29 0 -> /dev/pts/19
 lrwx------. 1 msantos msantos 64 Aug 28 09:29 1 -> /dev/pts/19
 lrwx------. 1 msantos msantos 64 Aug 28 09:29 2 -> /dev/pts/19
 lr-x------. 1 msantos msantos 64 Aug 28 09:29 3 -> /proc/32058/fd
-~~~
+```
 
 # OPTIONS
 
@@ -114,22 +114,24 @@ None.
 
 # BUILDING
 
-    make
+```
+make
 
-    # statically linked executable
-    ./musl-make
+# statically linked executable
+./musl-make
 
-    # some versions of glibc support closefrom(2)
-    CLOSEFROM_CFLAGS="-DHAVE_CLOSEFROM" make
+# some versions of glibc support closefrom(2)
+CLOSEFROM_CFLAGS="-DHAVE_CLOSEFROM" make
 
-    # run tests
-    make clean all test
+# run tests
+make clean all test
+```
 
 # ALTERNATIVES
 
 * bash
 
-~~~ shell
+```shell
 #!/bin/bash
 
 set -o errexit
@@ -146,10 +148,10 @@ for pathfd in /dev/fd/[0-9]*; do
 	eval "exec $fd>&-"
 done
 exec "$@"
-~~~
+```
 
 * [fdclose](http://skarnet.org./software/execline/fdclose.html)
 
 # SEE ALSO
 
-_close_(2), _closefrom(2)_, _exec(3)_
+*close*(2), *closefrom(2)*, *exec(3)*
